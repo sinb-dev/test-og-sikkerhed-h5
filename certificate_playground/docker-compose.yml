@@ -1,0 +1,23 @@
+services:
+  proxymanager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+     - 80:80
+     - 81:81
+     - 443:443
+    volumes:
+      - ./proxymanager/data:/data
+      - ./proxymanager/letsencrypt:/etc/letsencrypt
+    networks:
+     - backend
+  webserver:
+    image: 'httpd'
+    volumes:
+      - ./httpd/htdocs:/usr/local/apache2/htdocs/
+    hostname: httpd
+    networks:
+      - backend
+networks:
+  backend:
+    driver: bridge
