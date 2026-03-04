@@ -52,7 +52,7 @@ Put your Certificate Authority hat on. We need to sign incoming Certificate Sign
 ## Step 1: Create untrusted certificate for mydomain.lan
 1. Head back in the certificate_playground folder `cd ..`
 2. Create new directory next to *certificate-authority* called *certs* `mkdir certs`
-3. Create certificate: `openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./certs/mydomain.key -out ./certs/mydomain.crt -subj "/CN=issuer.local"`
+3. Create certificate: `openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./certs/mydomain.key -out ./certs/mydomain.crt -subj "/CN=MyDomain"`
 4. In Nginx Proxy Manager 
    * Click **Certificates** tab to upload certificate
    * **Add Certificate** > **Custom certificate**
@@ -93,7 +93,7 @@ LetsEncrypt, GoDaddy and Verisign will verify the domain. However since CA and r
 2. (Ubuntu) Verify the certificate (should output nothing if OK)
    * `openssl x509 -in /usr/local/share/ca-certificates/lanCA.crt -noout -text | grep -A 1 'X509v3 Basic Constraints's`
 3. (Ubuntu) Verify the certificate is signed by CA
-   * `openssl verify -CAfile /usr/local/share/ca-certificates/lanCA.crt certs/mydomain.lan.crt`
+   * `openssl verify -CAfile /usr/local/share/ca-certificates/lanCA.crt certs/mydomain.crt`
 
 ### Step 5: Upload signed certificate to Proxy Manager
 In Nginx Proxy Manager 
