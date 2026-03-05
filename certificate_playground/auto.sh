@@ -21,7 +21,7 @@ if command -v lsb_release >/dev/null 2>&1; then
     sudo cp lanCA.pem /etc/pki/ca-trust/source/anchors;
     sudo update-ca-trust;
   elif echo "$distro" | grep -qi ubuntu; then
-    sudo rm -f /usr/local/share/ca-certificateslanCA.crt
+    sudo rm -f /usr/local/share/ca-certificates/lanCA.crt
     sudo apt-get install -y ca-certificates
     sudo cp lanCA.crt /usr/local/share/ca-certificates
     sudo update-ca-certificates
@@ -54,7 +54,21 @@ echo "authorityKeyIdentifier=keyid,issuer
 openssl x509 -req -in certs/mydomain.csr -CA certificate-authority/lanCA.pem -CAkey certificate-authority/lanCA.key -CAcreateserial -out certs/mydomain.crt -days 365 -sha256 -extfile certs/mydomain.ext
 
 ## Verify certificate
-openssl verify -CAfile /etc/pki/ca-trust/source/anchors/lanCA.pem certs/mydomain.crt
-openssl x509 -in /etc/pki/ca-trust/source/anchors/lanCA.pem -noout -text | grep -A 1 'X509v3 Basic Constraints's
+if command -v lsb_release >/dev/null 2>&1; then
+  distro=$(lsb_release -si 2>/dev/null | grep -Ei 'fedora|ubuntu' || true)
+  if echo "$distro" | grep -qi fedora; then
+    openssl verify -CAfile /etc/pki/ca-trust/source/anchors/lanCA.pem certs/mydomain.crt
+  openssl x509 -in /etc/pki/ca-trust/source/anchors/lanCA.pem -noout -text | grep -A 1 'X509v3 Basic Constraints's
+  elif echo "$distro" | grep -qi ubuntu; then
+    openssl verify -CAfile /usr/local/share/ca-certificates/lanCA.crt certs/mydomain.crt
+  openssl x509 -in /usr/local/share/ca-certificates/lanCA.crt -noout -text | grep -A 1 'X509v3 Basic Constraints's
+  else
+    echo "Unknown distribution: ${distro:-$(lsb_release -sd 2>/dev/null || echo 'none')}"
+    exit 2
+  fi
+else
+  echo "lsb_release not found"
+  exit 3
+fi
 
 # Step 5: Use/Upload certificate to webserver (manual step)
